@@ -24,22 +24,18 @@ const AdminDashboard = () => {
   const [pendingReviews, setPendingReviews] = useState([]);
   const [galleryItems, setGalleryItems] = useState([]);
   const [inquiries, setInquiries] = useState([]);
-  const [supportTickets, setSupportTickets] = useState([]);
-  const [activeTicket, setActiveTicket] = useState(null);
-  const [adminReply, setAdminReply] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ordersRes, productsRes, usersRes, reviewsRes, galleryRes, inquiriesRes, ticketsRes] = await Promise.all([
+        const [ordersRes, productsRes, usersRes, reviewsRes, galleryRes, inquiriesRes] = await Promise.all([
           axios.get('/api/orders'),
           axios.get('/api/products'),
           axios.get('/api/auth/users'),
           axios.get('/api/reviews/pending'),
           axios.get('/api/gallery'),
-          axios.get('/api/contact'),
-          axios.get('/api/support/all')
+          axios.get('/api/contact')
         ]);
         
         setOrders(ordersRes.data);
@@ -48,7 +44,6 @@ const AdminDashboard = () => {
         setPendingReviews(reviewsRes.data || []);
         setGalleryItems(galleryRes.data || []);
         setInquiries(inquiriesRes.data || []);
-        setSupportTickets(ticketsRes.data || []);
         
         const revenue = ordersRes.data.reduce((acc, order) => acc + (order.isPaid ? order.totalPrice : 0), 0);
         setStats({
@@ -144,7 +139,6 @@ const AdminDashboard = () => {
             { id: 'reviews', icon: Edit, label: 'Reviews' },
             { id: 'gallery', icon: Image, label: 'Gallery' },
             { id: 'inquiries', icon: FiMessageSquare, label: 'Inquiries' },
-            { id: 'support', icon: FiMessageSquare, label: 'Support' },
             { id: 'users', icon: Users, label: 'Customers' }
           ].map(tab => (
             <button
@@ -555,96 +549,6 @@ const AdminDashboard = () => {
           </motion.div>
         )}
 
-        {/* Support Tab */}
-        {activeTab === 'support' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[700px]">
-            <div className="lg:col-span-4 glass-panel rounded-[2.5rem] overflow-hidden flex flex-col border-white/60">
-               <div className="p-6 border-b border-fuchsia-50 bg-fuchsia-50/30">
-                  <h4 className="font-black italic text-gray-800 uppercase tracking-widest text-xs">Active Sessions</h4>
-               </div>
-               <div className="flex-grow overflow-y-auto no-scrollbar">
-                  {supportTickets.map(ticket => (
-                    <button 
-                      key={ticket._id}
-                      onClick={async () => {
-                        setActiveTicket(ticket);
-                        await axios.put(`/api/support/read/${ticket._id}`);
-                        setSupportTickets(supportTickets.map(t => t._id === ticket._id ? {...t, messages: t.messages.map(m => m.sender === 'user' ? {...m, status: 'read'} : m)} : t));
-                      }}
-                      className={`w-full p-6 text-left border-b border-gray-50 transition-all flex items-center gap-4 ${activeTicket?._id === ticket._id ? 'bg-fuchsia-50 border-l-4 border-l-fuchsia-500' : 'hover:bg-gray-50'}`}
-                    >
-                       <div className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center font-black italic">
-                          {ticket.user.name[0]}
-                       </div>
-                       <div className="flex-grow overflow-hidden">
-                          <h5 className="font-black italic text-gray-800 truncate">{ticket.user.name}</h5>
-                          <p className="text-[10px] text-gray-400 font-medium truncate italic">
-                             {ticket.messages[ticket.messages.length-1]?.content}
-                          </p>
-                       </div>
-                       {ticket.messages.some(m => m.sender === 'user' && m.status === 'sent') && (
-                         <div className="w-2 h-2 rounded-full bg-fuchsia-500 animate-pulse"></div>
-                       )}
-                    </button>
-                  ))}
-               </div>
-            </div>
-
-            <div className="lg:col-span-8 glass-panel rounded-[2.5rem] flex flex-col overflow-hidden relative border-white/60">
-               {activeTicket ? (
-                 <>
-                   <div className="p-6 bg-gray-900 text-white flex justify-between items-center">
-                      <div>
-                         <h4 className="font-black italic uppercase tracking-tighter text-xl">{activeTicket.user.name}</h4>
-                         <p className="text-[9px] text-gray-400 font-black uppercase tracking-widest">{activeTicket.user.email}</p>
-                      </div>
-                   </div>
-                   <div className="flex-grow p-8 space-y-4 overflow-y-auto no-scrollbar bg-white/30 italic font-medium">
-                      {activeTicket.messages.map((msg, i) => (
-                        <div key={i} className={`flex ${msg.sender === 'admin' ? 'justify-end' : 'justify-start'}`}>
-                           <div className={`max-w-[80%] p-5 rounded-[2rem] ${
-                             msg.sender === 'admin' 
-                             ? 'bg-fuchsia-500 text-white rounded-tr-none shadow-xl' 
-                             : 'bg-white text-gray-800 rounded-tl-none border border-gray-100'
-                           }`}>
-                              <p>{msg.content}</p>
-                              <p className={`text-[8px] mt-2 font-black uppercase tracking-widest ${msg.sender === 'admin' ? 'text-white/50' : 'text-gray-300'}`}>
-                                 {new Date(msg.createdAt).toLocaleTimeString()}
-                              </p>
-                           </div>
-                        </div>
-                      ))}
-                   </div>
-                   <form 
-                     onSubmit={async (e) => {
-                       e.preventDefault();
-                       if (!adminReply.trim()) return;
-                       const { data } = await axios.post('/api/support/message', { content: adminReply, userId: activeTicket.user._id });
-                       setActiveTicket(data);
-                       setSupportTickets(supportTickets.map(t => t._id === data._id ? data : t));
-                       setAdminReply('');
-                     }} 
-                     className="p-6 bg-white border-t border-gray-100 flex gap-4"
-                   >
-                      <input 
-                        className="flex-grow px-8 py-4 bg-gray-50 rounded-full border-none focus:ring-2 focus:ring-fuchsia-200 font-bold italic"
-                        placeholder="Reply to customer..."
-                        value={adminReply} onChange={(e) => setAdminReply(e.target.value)}
-                      />
-                      <button className="px-10 py-4 bg-gray-900 text-white rounded-full font-black italic shadow-lg active:scale-95 transition-all">
-                        Reply
-                      </button>
-                   </form>
-                 </>
-               ) : (
-                 <div className="flex-grow flex flex-col items-center justify-center p-20 text-center opacity-30">
-                    <FiMessageSquare size={80} className="mb-6" />
-                    <h3 className="text-3xl font-black italic">Select a session</h3>
-                 </div>
-               )}
-            </div>
-          </motion.div>
-        )}
         {(activeTab === 'products' || activeTab === 'users') && (
            <div className="glass-panel p-20 rounded-[3rem] text-center border-white/40">
              <div className="text-6xl mb-6 text-fuchsia-300 opacity-50 flex justify-center">
