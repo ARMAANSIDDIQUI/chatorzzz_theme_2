@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const Product = require('./models/Product');
+const Product = require('../models/Product');
 
 dotenv.config();
 
@@ -51,13 +51,13 @@ const seedDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Connected to MongoDB for seeding');
-    
+
     await Product.deleteMany({});
     console.log('🗑️ Cleared existing products');
-    
+
     await Product.insertMany(candies);
     console.log('🍭 Seeded initial candies');
-    
+
     mongoose.connection.close();
     console.log('🔌 Database connection closed');
   } catch (err) {

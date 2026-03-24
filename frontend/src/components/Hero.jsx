@@ -36,13 +36,10 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap gap-4 justify-center lg:justify-start mt-4"
+            className="flex justify-center lg:justify-start mt-4"
           >
-            <Link to="/products" className="px-10 py-5 rounded-[2rem] candy-gradient text-gray-900 font-black italic text-xl shadow-2xl hover:shadow-fuchsia-400/50 transform hover:-translate-y-1 transition-all duration-300">
-              Find Your Fix
-            </Link>
-            <Link to="/products" className="px-10 py-5 rounded-[2rem] glass-panel text-fuchsia-900 font-black italic text-xl hover:bg-white/60 transform hover:-translate-y-1 transition-all duration-300 border border-white/40">
-              The Collection
+            <Link to="/products" className="px-12 py-5 rounded-[2.5rem] candy-gradient text-gray-900 font-black italic text-xl shadow-2xl hover:shadow-fuchsia-400/50 transform hover:-translate-y-1 transition-all duration-300">
+              Explore the Collection
             </Link>
           </motion.div>
         </div>

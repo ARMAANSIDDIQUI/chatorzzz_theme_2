@@ -49,7 +49,9 @@ export default defineConfig({
     },
   },
   define: {
-    // Some libraries (like old CJS ones) might expect 'global' or 'process' to exist
+    // Definitive fix for 'exports is not defined' in browser environments
     'global': 'window',
+    'exports': {},
+    'process.env': {},
   },
 });
