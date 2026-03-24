@@ -44,5 +44,12 @@ export default defineConfig({
   build: {
     outDir: '../backend/public',
     emptyOutDir: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
+  define: {
+    // Some libraries (like old CJS ones) might expect 'global' or 'process' to exist
+    'global': 'window',
   },
 });
