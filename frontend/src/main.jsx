@@ -8,7 +8,7 @@ import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import axios from 'axios';
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

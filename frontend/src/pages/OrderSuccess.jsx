@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link, useParams } from 'react-router-dom';
-import { CheckCircle, Package, ArrowRight } from 'react-icons/fi';
+import { FiCheckCircle, FiPackage, FiArrowRight } from 'react-icons/fi';
 import { RiSparklingFill } from 'react-icons/ri';
 
 const OrderSuccess = () => {
@@ -23,7 +23,7 @@ const OrderSuccess = () => {
             transition={{ type: 'spring', damping: 10 }}
             className="p-6 bg-green-100 rounded-full text-green-500 relative"
           >
-            <CheckCircle size={60} />
+            <FiCheckCircle size={60} />
             <motion.div 
               animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 0.5] }}
               transition={{ repeat: Infinity, duration: 2 }}
@@ -51,7 +51,7 @@ const OrderSuccess = () => {
             to="/profile" 
             className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/60 text-gray-700 font-bold hover:bg-white transition-all flex items-center justify-center gap-2 border border-white/40"
           >
-            <Package size={20} />
+            <FiPackage size={20} />
             Track Order
           </Link>
           <Link 
@@ -59,7 +59,7 @@ const OrderSuccess = () => {
             className="w-full sm:w-auto px-8 py-4 rounded-2xl candy-gradient text-white font-bold shadow-lg hover:shadow-fuchsia-200/50 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
           >
             Continue Shopping
-            <ArrowRight size={20} />
+            <FiArrowRight size={20} />
           </Link>
         </div>
 

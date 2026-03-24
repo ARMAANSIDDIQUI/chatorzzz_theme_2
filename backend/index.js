@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const cloudinary = require('cloudinary').v2;
@@ -45,10 +46,8 @@ mongoose.connect(process.env.MONGODB_URI)
   })
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
-// Basic Route
-app.get('/', (req, res) => {
-  res.send('Candy Store API is running...');
-});
+// Serve static files from the backend/public directory (synced with frontend build)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Import Routes
 const productRoutes = require('./routes/productRoutes');
@@ -73,6 +72,11 @@ app.use('/api/categories', categoryRoutes);
 app.use((err, req, res, next) => {
   console.error('Unhandled Error:', err);
   res.status(500).json({ message: 'Internal Server Error' });
+});
+
+// Catch-all route to serve the frontend index.html for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
