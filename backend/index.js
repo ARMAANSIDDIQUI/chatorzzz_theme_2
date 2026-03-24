@@ -47,7 +47,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // Serve static files from the backend/public directory (synced with frontend build)
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 // Import Routes
 const productRoutes = require('./routes/productRoutes');
@@ -75,9 +75,9 @@ app.use((err, req, res, next) => {
 });
 
 // Catch-all route to serve the frontend index.html for any non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
