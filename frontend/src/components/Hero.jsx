@@ -19,9 +19,9 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-5xl md:text-7xl font-black tracking-tighter text-fuchsia-900 drop-shadow-lg leading-tight"
           >
-            Unwrap The <br/>
+            Sweets That <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-cyan-400">
-              Artisanal Evolution
+              Actually Hit Different
             </span>
           </motion.h1>
           <motion.p 
@@ -30,7 +30,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="text-xl md:text-2xl text-fuchsia-800 font-medium"
           >
-            Where artisanal craft meets hyper-realistic flavor.
+            Small batches. Big flavor. No shortcuts. Just pure, hand-crafted magic for your sweet tooth.
           </motion.p>
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -39,10 +39,10 @@ export default function Hero() {
             className="flex flex-wrap gap-4 justify-center lg:justify-start mt-4"
           >
             <Link to="/products" className="px-10 py-5 rounded-[2rem] candy-gradient text-gray-900 font-black italic text-xl shadow-2xl hover:shadow-fuchsia-400/50 transform hover:-translate-y-1 transition-all duration-300">
-              Explore Candies
+              Find Your Fix
             </Link>
             <Link to="/products" className="px-10 py-5 rounded-[2rem] glass-panel text-fuchsia-900 font-black italic text-xl hover:bg-white/60 transform hover:-translate-y-1 transition-all duration-300 border border-white/40">
-              Shop Now
+              The Collection
             </Link>
           </motion.div>
         </div>

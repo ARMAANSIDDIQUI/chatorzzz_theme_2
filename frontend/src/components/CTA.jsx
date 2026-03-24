@@ -31,7 +31,7 @@ export default function CTA() {
           viewport={{ once: true }}
           className="text-5xl md:text-7xl font-black italic text-fuchsia-900 mb-8 tracking-tighter"
         >
-          Ready For A Sweet Adventure?
+          Actually, You <br className="hidden md:block" /> Do Need This.
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
@@ -40,7 +40,7 @@ export default function CTA() {
           transition={{ delay: 0.2 }}
           className="text-2xl text-fuchsia-800 mb-12 font-bold leading-relaxed"
         >
-          Join the Chatorzzz family and get <span className="text-white px-2 py-1 bg-fuchsia-600 rounded-lg">20% off</span> your first order.
+          Trust us, your future self will thank you for this choice. Grab your first box with <span className="text-white px-2 py-1 bg-fuchsia-600 rounded-lg">20% off</span> and see why we're so obsessed.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -52,7 +52,7 @@ export default function CTA() {
             to="/register" 
             className="inline-flex items-center gap-4 px-12 py-5 rounded-[2rem] bg-white text-fuchsia-600 font-black italic text-2xl shadow-xl hover:shadow-fuchsia-300 transform hover:-translate-y-1 transition-all duration-300"
           >
-            Join Now
+            Let's Do It
             <FiArrowRight />
           </Link>
         </motion.div>

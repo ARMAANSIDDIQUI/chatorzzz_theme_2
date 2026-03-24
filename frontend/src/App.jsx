@@ -22,7 +22,10 @@ const Profile = lazy(() => import('./pages/Profile'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const OurStory = lazy(() => import('./pages/OurStory'));
-const { PrivacyPolicy, TermsOfService, ShippingInfo, Returns } = lazy(() => import('./pages/LegalPages'));
+const PrivacyPolicy = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.PrivacyPolicy })));
+const TermsOfService = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.TermsOfService })));
+const ShippingInfo = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.ShippingInfo })));
+const Returns = lazy(() => import('./pages/LegalPages').then(m => ({ default: m.Returns })));
 const BackgroundEmojis = lazy(() => import('./components/BackgroundEmojis'));
 
 const BackgroundEmojiWrapper = () => {
