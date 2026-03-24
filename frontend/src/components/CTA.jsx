@@ -40,7 +40,7 @@ export default function CTA() {
           transition={{ delay: 0.2 }}
           className="text-2xl text-fuchsia-800 mb-12 font-bold leading-relaxed"
         >
-          Join the Chatorzzz family and get <span className="text-white px-2 py-1 bg-fuchsia-600 rounded-lg">20% off</span> your first magical order.
+          Join the Chatorzzz family and get <span className="text-white px-2 py-1 bg-fuchsia-600 rounded-lg">20% off</span> your first order.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

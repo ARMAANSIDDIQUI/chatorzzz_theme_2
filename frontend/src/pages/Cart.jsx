@@ -83,7 +83,7 @@ const Cart = () => {
                 <div className="flex-grow text-center sm:text-left">
                   <h3 className="text-2xl font-bold text-gray-800 mb-1">{item.name}</h3>
                   <p className="text-fuchsia-500 font-bold text-lg mb-4 text-center sm:text-left flex justify-center sm:justify-start items-center">
-                   <span className="text-sm mr-1">$</span>{item.price}
+                   <span className="text-sm mr-1">₹</span>{item.price}
                   </p>
                   
                   <div className="flex items-center justify-center sm:justify-start gap-4">
@@ -113,7 +113,7 @@ const Cart = () => {
 
                 <div className="text-right hidden sm:block">
                   <span className="text-3xl font-black text-gray-800 whitespace-nowrap">
-                    ${(item.price * item.qty).toFixed(2)}
+                    ₹{(item.price * item.qty).toFixed(2)}
                   </span>
                 </div>
               </motion.div>
@@ -129,20 +129,20 @@ const Cart = () => {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between font-bold text-gray-500">
                 <span>Items Subtotal</span>
-                <span>${itemsPrice.toFixed(2)}</span>
+                <span>₹{itemsPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-gray-500">
                 <span>Shipping</span>
-                <span>{shippingPrice === 0 ? 'FREE' : `$${shippingPrice.toFixed(2)}`}</span>
+                <span>{shippingPrice === 0 ? 'FREE' : `₹${shippingPrice.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between font-bold text-gray-500">
                 <span>Gst / Tax</span>
-                <span>${taxPrice.toFixed(2)}</span>
+                <span>₹{taxPrice.toFixed(2)}</span>
               </div>
               <div className="h-[1px] bg-gray-200 my-4"></div>
               <div className="flex justify-between items-baseline">
                 <span className="text-xl font-bold text-gray-800 italic">Total</span>
-                <span className="text-4xl font-black text-fuchsia-500">${totalPrice.toFixed(2)}</span>
+                <span className="text-4xl font-black text-fuchsia-500">₹{totalPrice.toFixed(2)}</span>
               </div>
             </div>
 

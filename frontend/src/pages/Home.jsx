@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Hero from '../components/Hero';
-import FeaturedProducts from '../components/FeaturedProducts';
 import CandyStory from '../components/CandyStory';
 import CandyGallery from '../components/CandyGallery';
 import ProductCarousel from '../components/ProductCarousel';
@@ -17,7 +16,6 @@ export default function Home() {
     >
       <Hero />
       <ProductCarousel />
-      <FeaturedProducts />
       <CandyStory />
       <CandyGallery />
       <CTA />

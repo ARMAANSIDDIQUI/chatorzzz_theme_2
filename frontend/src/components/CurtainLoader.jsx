@@ -18,18 +18,18 @@ const CurtainLoader = () => {
           initial={{ y: 0 }}
           exit={{ y: '-100%' }}
           transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0510] overflow-hidden"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 backdrop-blur-xl overflow-hidden"
         >
           {/* Layered Gradients for Depth */}
           <div className="absolute inset-0 z-0">
-            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-fuchsia-900/40 blur-[150px] animate-pulse"></div>
-            <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full bg-cyan-900/40 blur-[180px] animate-pulse" style={{ animationDelay: '1s' }}></div>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/20 to-black/60"></div>
+            <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-fuchsia-100/40 blur-[150px] animate-pulse"></div>
+            <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full bg-cyan-100/40 blur-[180px] animate-pulse" style={{ animationDelay: '1s' }}></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/40 to-white/90"></div>
           </div>
 
           {/* Animated Background Particles */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(25)].map((_, i) => (
+            {[...Array(30)].map((_, i) => (
               <motion.div
                 key={i}
                 initial={{ 
@@ -41,7 +41,7 @@ const CurtainLoader = () => {
                 animate={{ 
                   y: [null, '-20%', '120%'],
                   scale: [0, 1.2, 0.6],
-                  opacity: [0, 0.4, 0]
+                  opacity: [0, 0.6, 0]
                 }}
                 transition={{ 
                   duration: Math.random() * 6 + 6, 
@@ -49,7 +49,7 @@ const CurtainLoader = () => {
                   delay: Math.random() * 5,
                   ease: "linear"
                 }}
-                className="absolute w-6 h-6 rounded-full bg-fuchsia-400/20 blur-xl"
+                className={`absolute w-8 h-8 rounded-full blur-xl ${i % 2 === 0 ? 'bg-fuchsia-400/30' : 'bg-cyan-400/30'}`}
               />
             ))}
           </div>
@@ -63,14 +63,14 @@ const CurtainLoader = () => {
                 className="relative inline-block"
               >
                 {/* Glow behind text */}
-                <div className="absolute inset-0 bg-fuchsia-500/30 blur-[60px] rounded-full scale-110"></div>
+                <div className="absolute inset-0 bg-fuchsia-500/20 blur-[80px] rounded-full scale-125"></div>
                 
                 <motion.h1
                   initial={{ y: 150 }}
                   animate={{ y: 0 }}
                   exit={{ y: -150 }}
                   transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-                  className="text-8xl md:text-[10rem] font-black italic text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-fuchsia-200 tracking-tighter drop-shadow-[0_20px_50px_rgba(217,70,239,0.3)] relative z-10 px-12 pr-16"
+                  className="text-8xl md:text-[10rem] font-black italic text-transparent bg-clip-text bg-gradient-to-br from-fuchsia-600 via-fuchsia-500 to-cyan-500 tracking-tighter drop-shadow-[0_20px_50px_rgba(217,70,239,0.4)] relative z-10 px-12 pr-16"
                 >
                   Chatorzzz
                 </motion.h1>
@@ -81,12 +81,12 @@ const CurtainLoader = () => {
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ duration: 1.5, delay: 0.5, ease: "circOut" }}
-                  className="h-1.5 w-full max-w-[400px] bg-white/10 rounded-full overflow-hidden backdrop-blur-md"
+                  className="h-2.5 w-full max-w-[400px] bg-fuchsia-50 rounded-full overflow-hidden backdrop-blur-md border border-fuchsia-100"
                 >
                   <motion.div 
                     animate={{ x: ['-100%', '100%'] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className="h-full w-1/2 bg-gradient-to-r from-transparent via-white to-transparent"
+                    className="h-full w-1/2 bg-gradient-to-r from-transparent via-fuchsia-500 to-transparent"
                   />
                 </motion.div>
               </div>
@@ -96,9 +96,9 @@ const CurtainLoader = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1, duration: 0.5 }}
-              className="text-center text-white/50 font-bold italic tracking-[0.3em] text-xs uppercase"
+              className="text-center text-fuchsia-900/60 font-black italic tracking-[0.3em] text-[0.6rem] uppercase"
             >
-              Unwrapping The Magic
+              Preparing Experience
             </motion.p>
           </div>
           
@@ -109,7 +109,7 @@ const CurtainLoader = () => {
               scale: [1, 1.1, 1],
             }} 
             transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-20 -left-20 w-[40rem] h-[40rem] border-[60px] border-fuchsia-500/5 rounded-full blur-3xl"
+            className="absolute -top-20 -left-20 w-[40rem] h-[40rem] border-[60px] border-fuchsia-200/5 rounded-full blur-3xl"
           />
           <motion.div 
             animate={{ 
@@ -117,7 +117,7 @@ const CurtainLoader = () => {
               scale: [1, 1.2, 1],
             }} 
             transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-40 -right-40 w-[50rem] h-[50rem] border-[80px] border-cyan-500/5 rounded-[10rem] blur-3xl"
+            className="absolute -bottom-40 -right-40 w-[50rem] h-[50rem] border-[80px] border-cyan-200/5 rounded-[10rem] blur-3xl"
           />
         </motion.div>
       )}

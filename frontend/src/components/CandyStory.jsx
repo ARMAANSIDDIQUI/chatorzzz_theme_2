@@ -17,8 +17,8 @@ export default function CandyStory() {
           >
             <div className="absolute inset-0 bg-fuchsia-300 rounded-[3rem] transform rotate-6 scale-105 opacity-50 blur-xl"></div>
             <img 
-              src="/assets/images/candy4.png" 
-              alt="Candy Making" 
+              src="/assets/images/premium_candy_process.png" 
+              alt="Artisanal Candy Craft" 
               className="relative z-10 rounded-[3rem] shadow-2xl object-cover h-[500px] w-full border-4 border-white"
             />
             {/* Floating decoration */}
@@ -39,17 +39,17 @@ export default function CandyStory() {
             className="flex flex-col gap-6"
           >
             <h2 className="text-5xl font-black text-fuchsia-900 leading-tight">
-              The Magic Behind <br/> Our Sweets
+              The Craft Behind <br/> Our Sweets
             </h2>
-            <p className="text-xl text-fuchsia-800 leading-relaxed">
-              Chatorzzz brings magical candy experiences with vibrant flavors and fun shapes. Every piece is crafted with joy, a sprinkle of stardust, and the finest ingredients to make your taste buds dance.
+            <p className="text-xl text-fuchsia-800 leading-relaxed font-medium">
+              Chatorzzz delivers premium confectionery experiences with sophisticated flavor profiles and elegant designs. Every piece is handcrafted with precision, utilizing only the finest natural ingredients to achieve culinary excellence.
             </p>
-            <p className="text-lg text-fuchsia-700 leading-relaxed">
-              Whether you're looking for a nostalgic treat or a new flavor adventure, our candy universe has something special waiting just for you.
+            <p className="text-lg text-fuchsia-700 leading-relaxed font-medium">
+              Whether you are seeking a refined take on a classic treat or an innovative flavor profile, our curated collection is designed to delight the most discerning palate.
             </p>
             <div className="mt-4">
               <Link to="/products" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-cyan-400 text-fuchsia-900 font-black italic text-lg shadow-xl hover:bg-cyan-300 hover:scale-105 transition-all duration-300">
-                Explore The Magic
+                Explore The Collection
                 <FiArrowRight />
               </Link>
             </div>

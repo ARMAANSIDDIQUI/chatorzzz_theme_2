@@ -21,7 +21,7 @@ export default function Hero() {
           >
             Unwrap The <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-cyan-400">
-              Magical Evolution
+              Artisanal Evolution
             </span>
           </motion.h1>
           <motion.p 

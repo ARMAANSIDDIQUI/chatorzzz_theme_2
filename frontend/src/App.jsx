@@ -7,6 +7,7 @@ import CurtainLoader from './components/CurtainLoader';
 import CustomCursor from './components/CustomCursor';
 import CursorSwitcher from './components/CursorSwitcher';
 import ScrollToTop from './components/ScrollToTop';
+import AutoScrollToTop from './components/AutoScrollToTop';
 
 const Home = lazy(() => import('./pages/Home'));
 const Products = lazy(() => import('./pages/Products'));
@@ -48,11 +49,11 @@ function AnimatedRoutes() {
   
   return (
     <AnimatePresence>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-fuchsia-500 font-bold text-2xl animate-pulse italic">Loading Magic...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-fuchsia-500 font-bold text-2xl animate-pulse italic">Loading Experience...</div>}>
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/product/:id" element={<Product />} />
+          <Route path="/product/:slug" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -78,6 +79,7 @@ function AnimatedRoutes() {
 export default function App() {
   return (
     <Router>
+      <AutoScrollToTop />
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Global animated background elements - Hidden on mobile for performance */}
         <div className="fixed inset-0 pointer-events-none z-0 hidden md:block">

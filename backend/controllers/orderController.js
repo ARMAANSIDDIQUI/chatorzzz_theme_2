@@ -1,4 +1,5 @@
 const Order = require('../models/Order');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // Create new order
 exports.addOrderItems = async (req, res) => {
@@ -115,4 +116,76 @@ exports.updateOrderStatus = async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
+};
+
+// Create Stripe Checkout Session
+exports.createCheckoutSession = async (req, res) => {
+  try {
+    const { orderItems, orderId } = req.body;
+
+    const lineItems = orderItems.map((item) => {
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: item.name,
+            images: [item.image],
+          },
+          unit_amount: Math.round(item.price * 100), // Stripe expects cents
+        },
+        quantity: item.qty,
+      };
+    });
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order-success/${orderId}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/checkout`,
+      metadata: { orderId: orderId.toString() },
+    });
+
+    res.json({ id: session.id, url: session.url });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Stripe Webhook Handler
+exports.stripeWebhook = async (req, res) => {
+  const payload = req.body;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(payload, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const orderId = session.metadata.orderId;
+
+    try {
+      const order = await Order.findById(orderId);
+      if (order) {
+        order.isPaid = true;
+        order.paidAt = Date.now();
+        order.paymentResult = {
+          id: session.payment_intent,
+          status: session.payment_status,
+          email_address: session.customer_details?.email,
+        };
+        await order.save();
+        console.log(`Order ${orderId} marked as paid`);
+      }
+    } catch (err) {
+      console.error(`Error updating order ${orderId}:`, err);
+    }
+  }
+
+  res.status(200).end();
 };

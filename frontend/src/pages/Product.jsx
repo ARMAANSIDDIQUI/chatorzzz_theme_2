@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -10,7 +11,7 @@ import {
 import toast from 'react-hot-toast';
 
 const Product = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
@@ -25,7 +26,7 @@ const Product = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await axios.get(`/api/products/${id}`);
+        const { data } = await axios.get(`/api/products/${slug}`);
         setProduct(data);
         setLoading(false);
       } catch (err) {
@@ -42,7 +43,7 @@ const Product = () => {
         const { data: orders } = await axios.get('/api/orders/myorders');
         const hasBought = orders.some(order => 
           order.status === 'Delivered' && 
-          order.orderItems.some(item => item.product === id)
+          order.orderItems.some(item => item.product === product?._id)
         );
         const alreadyReviewed = product?.reviews?.some(r => r.user === user._id);
         setCanReview(hasBought && !alreadyReviewed);
@@ -52,15 +53,15 @@ const Product = () => {
     };
 
     fetchProduct();
-    if (user) checkReviewStatus();
-  }, [id, user, product?.reviews]);
+    if (user && product) checkReviewStatus();
+  }, [slug, user, product?.reviews]);
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     if (rating < 1) return toast.error('Please select a rating');
     setSubmitting(true);
     try {
-      await axios.post(`/api/reviews/${id}`, { rating, comment });
+      await axios.post(`/api/reviews/${product._id}`, { rating, comment });
       toast.success('Review submitted! Pending admin approval');
       setComment('');
       setRating(5);
@@ -136,7 +137,7 @@ const Product = () => {
 
             <div className="space-y-4">
               <div className="text-6xl font-black text-gray-900 flex items-baseline gap-2 italic">
-                <span className="text-2xl text-fuchsia-300">$</span>
+                <span className="text-2xl text-fuchsia-300">₹</span>
                 {product.price}
               </div>
               <div className="flex items-center gap-2">

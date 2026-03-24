@@ -14,7 +14,7 @@ export default function ProductCarousel() {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get('/api/products');
-        const productList = data?.products || [];
+        const productList = Array.isArray(data) ? data : data?.products || [];
         setProducts(productList.slice(0, 8)); // Grab up to 8 for a good carousel
       } catch (err) {
         console.error('Failed to fetch carousel products', err);
@@ -51,11 +51,16 @@ export default function ProductCarousel() {
     <section className="py-20 relative z-10 overflow-hidden bg-white/30 backdrop-blur-sm">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between mb-12">
-          <div>
-            <h2 className="text-4xl font-black italic text-fuchsia-900 tracking-tighter">
-              Sweet Trending
-            </h2>
-            <p className="text-fuchsia-700 font-bold">Pick your magic today!</p>
+          <div className="flex items-end gap-6 mb-2">
+            <div>
+              <h2 className="text-4xl font-black italic text-fuchsia-900 tracking-tighter">
+                Sweet Trending
+              </h2>
+              <p className="text-fuchsia-700 font-bold">Pick your magic today!</p>
+            </div>
+            <Link to="/products" className="mb-1 text-fuchsia-400 font-black italic hover:text-fuchsia-600 transition-all flex items-center gap-1 group whitespace-nowrap">
+              See All <FiChevronRight className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
           <div className="flex gap-4">
             <button onClick={prev} className="p-4 rounded-2xl bg-white shadow-lg text-fuchsia-600 hover:bg-fuchsia-100 transition-all border border-fuchsia-100">
@@ -84,7 +89,7 @@ export default function ProductCarousel() {
                   transition={{ duration: 0.5 }}
                   className="glass-panel p-6 rounded-[2.5rem] group"
                 >
-                  <Link to={`/product/${product._id}`} className="block relative mb-6">
+                  <Link to={`/product/${product.slug || product._id}`} className="block relative mb-6">
                     <div className="aspect-square rounded-[2rem] bg-gradient-to-tr from-fuchsia-100 to-cyan-100 overflow-hidden shadow-inner">
                       <img 
                         src={product.image} 
@@ -101,7 +106,7 @@ export default function ProductCarousel() {
                   <div className="text-center">
                     <h3 className="text-xl font-black italic text-gray-800 mb-2">{product.name}</h3>
                     <div className="text-2xl font-black text-fuchsia-500 italic mb-6">
-                      <span className="text-sm mr-1">$</span>{product.price}
+                      <span className="text-sm mr-1">₹</span>{product.price}
                     </div>
                     <button className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl candy-gradient text-gray-900 font-black italic shadow-lg hover:shadow-fuchsia-300 transition-all transform active:scale-95">
                       <FiShoppingBag />

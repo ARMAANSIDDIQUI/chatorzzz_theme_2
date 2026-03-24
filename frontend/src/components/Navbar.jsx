@@ -3,13 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
-import { FiShoppingCart, FiUser, FiHome, FiShoppingBag, FiSettings } from 'react-icons/fi';
+import { FiShoppingCart, FiUser, FiHome, FiShoppingBag, FiSettings, FiMenu, FiX } from 'react-icons/fi';
 
 export default function Navbar() {
   const { user } = useAuth();
   const { cartCount } = useCart();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -35,9 +36,17 @@ export default function Navbar() {
           : 'top-0 w-full bg-white/20 backdrop-blur-xl px-10 py-3.5 border-b border-white/10 rounded-none shadow-none'
       }`}
     >
-      <Link to="/" className="text-3xl md:text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md pr-2 transition-all">
-        Chatorzzz
-      </Link>
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden p-2 text-fuchsia-600 hover:bg-fuchsia-50 rounded-xl transition-all"
+        >
+          {isMobileMenuOpen ? <FiX size={26} /> : <FiMenu size={26} />}
+        </button>
+        <Link to="/" className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md pr-2 transition-all">
+          Chatorzzz
+        </Link>
+      </div>
 
       <div className="flex items-center gap-6 lg:gap-10 font-bold text-gray-700">
         <ul className="hidden md:flex gap-8">
@@ -109,6 +118,34 @@ export default function Navbar() {
           )}
         </div>
       </div>
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            className="fixed inset-0 z-40 md:hidden pt-24 px-6 bg-white/95 backdrop-blur-2xl"
+          >
+            <ul className="flex flex-col gap-6">
+              {navLinks.map((link) => (
+                <motion.li 
+                  key={link.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Link 
+                    to={link.path} 
+                    className={`flex items-center gap-4 text-2xl font-black italic transition-colors ${location.pathname === link.path ? 'text-fuchsia-600' : 'text-gray-400'}`}
+                  >
+                    <link.icon size={24} />
+                    {link.name}
+                  </Link>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   );
 }

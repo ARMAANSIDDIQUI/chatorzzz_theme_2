@@ -94,7 +94,7 @@ export default function Candy3D() {
     >
       <group 
         ref={groupRef} 
-        scale={1.73} 
+        scale={1.903} 
         position={[0, -0.5, 0]}
         onClick={() => setActive(!active)}
         onPointerOver={() => (document.body.style.cursor = 'pointer')}

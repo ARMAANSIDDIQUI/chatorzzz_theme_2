@@ -138,7 +138,7 @@ const Profile = () => {
                     </div>
                     <p className="text-gray-600 font-medium">
                       {order.orderItems.length} item{order.orderItems.length > 1 ? 's' : ''} • 
-                      <span className="text-gray-800 font-black ml-1">Total: ${order.totalPrice.toFixed(2)}</span>
+                      <span className="text-gray-800 font-black ml-1">Total: ₹{order.totalPrice.toFixed(2)}</span>
                     </p>
                   </div>
 

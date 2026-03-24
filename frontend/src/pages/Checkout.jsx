@@ -37,9 +37,15 @@ const Checkout = () => {
       };
 
       const { data } = await axios.post('/api/orders', orderData);
-      toast.success('Order placed successfully!');
+
+      const { data: sessionData } = await axios.post('/api/orders/create-checkout-session', {
+        orderItems: cartItems,
+        orderId: data._id
+      });
+
+      toast.success('Redirecting to secure payment...');
       clearCart();
-      navigate(`/order-success/${data._id}`);
+      window.location.href = sessionData.url;
     } catch (err) {
       toast.error(err.response?.data?.message || 'Order failed');
     } finally {
@@ -120,7 +126,7 @@ const Checkout = () => {
               disabled={isProcessing}
               className={`w-full py-5 rounded-[2rem] candy-gradient text-white font-black text-xl shadow-2xl hover:shadow-fuchsia-200 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3 ${isProcessing ? 'opacity-70' : ''}`}
             >
-              {isProcessing ? 'Processing Magic...' : `Pay $${totalPrice.toFixed(2)}`}
+              {isProcessing ? 'Processing Magic...' : `Pay ₹${totalPrice.toFixed(2)}`}
               <FiZap size={24} />
             </button>
           </form>
@@ -140,9 +146,9 @@ const Checkout = () => {
                   <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-xl" />
                   <div className="flex-grow">
                     <h4 className="font-bold text-gray-800">{item.name}</h4>
-                    <span className="text-gray-500 font-bold">{item.qty} x ${item.price}</span>
+                    <span className="text-gray-500 font-bold">{item.qty} x ₹{item.price}</span>
                   </div>
-                  <span className="font-black text-gray-800">${(item.qty * item.price).toFixed(2)}</span>
+                  <span className="font-black text-gray-800">₹{(item.qty * item.price).toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -150,11 +156,11 @@ const Checkout = () => {
             <div className="mt-8 space-y-3 pt-6 border-t-2 border-dashed border-gray-200">
                <div className="flex justify-between font-bold text-gray-500">
                 <span>Subtotal</span>
-                <span>${itemsPrice.toFixed(2)}</span>
+                <span>₹{itemsPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-gray-800 text-xl italic">
                 <span>Total Amount</span>
-                <span className="text-fuchsia-500 font-black text-2xl">${totalPrice.toFixed(2)}</span>
+                <span className="text-fuchsia-500 font-black text-2xl">₹{totalPrice.toFixed(2)}</span>
               </div>
             </div>
           </div>

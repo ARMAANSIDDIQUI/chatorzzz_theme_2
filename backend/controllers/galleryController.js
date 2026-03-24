@@ -1,44 +1,51 @@
 const Gallery = require('../models/Gallery');
+const cloudinary = require('cloudinary').v2;
 
 // Get all gallery items
 exports.getGallery = async (req, res) => {
   try {
-    const items = await Gallery.find().sort({ id: 1 });
-    
-    // If empty, initialize with default slots
-    if (items.length === 0) {
-      const defaults = [
-        { id: 1, image: '/assets/images/candy1.png', title: 'Crystal Pops', span: 'col-span-2 row-span-2' },
-        { id: 2, image: '/assets/images/candy2.png', title: 'Crystal Pops', span: 'col-span-1 row-span-1' },
-        { id: 3, image: '/assets/images/candy3.png', title: 'Gummy Galaxies', span: 'col-span-1 row-span-2' },
-        { id: 4, image: '/assets/images/candy4.png', title: 'Gummy Galaxies', span: 'col-span-1 row-span-1' },
-        { id: 5, image: '/assets/images/candy1.png', title: 'Rainbow Rocks', span: 'col-span-2 row-span-1' },
-        { id: 6, image: '/assets/images/candy2.png', title: 'Rainbow Rocks', span: 'col-span-1 row-span-1' },
-        { id: 7, image: '/assets/images/candy3.png', title: 'Sweet Stars', span: 'col-span-1 row-span-1' },
-        { id: 8, image: '/assets/images/candy4.png', title: 'Sweet Stars', span: 'col-span-1 row-span-1' },
-        { id: 9, image: '/assets/images/candy1.png', title: 'Magic Clouds', span: 'col-span-2 row-span-1' },
-      ];
-      const created = await Gallery.insertMany(defaults);
-      return res.json(created);
-    }
-    
+    const items = await Gallery.find().sort({ order: 1 });
     res.json(items);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+// Create gallery item
+exports.createGalleryItem = async (req, res) => {
+  try {
+    const { type, image, video, title, order } = req.body;
+    const newItem = new Gallery({ type, image, video, title, order });
+    await newItem.save();
+    res.status(201).json(newItem);
+  } catch (error) {
+    console.error('❌ Gallery Creation Error:', error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
 // Update gallery item
 exports.updateGalleryItem = async (req, res) => {
   try {
-    const { id, image, title } = req.body;
-    const item = await Gallery.findOneAndUpdate(
-      { id },
-      { image, title },
+    const { type, image, video, title, order } = req.body;
+    const item = await Gallery.findByIdAndUpdate(
+      req.params.id,
+      { type, image, video, title, order },
       { new: true }
     );
-    if (!item) return res.status(404).json({ message: 'Slot not found' });
+    if (!item) return res.status(404).json({ message: 'Item not found' });
     res.json(item);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete gallery item
+exports.deleteGalleryItem = async (req, res) => {
+  try {
+    const item = await Gallery.findByIdAndDelete(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Item not found' });
+    res.json({ message: 'Gallery item removed' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

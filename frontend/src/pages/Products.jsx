@@ -8,47 +8,61 @@ import toast from 'react-hot-toast';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(['All']);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [category, setCategory] = useState('All');
+  const [showFilters, setShowFilters] = useState(false);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
   const { addToCart } = useCart();
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get('/api/products');
-        setProducts(data);
+        const [prodRes, catRes] = await Promise.all([
+          axios.get('/api/products'),
+          axios.get('/api/categories')
+        ]);
+        setProducts(prodRes.data);
+        setCategories(['All', ...catRes.data.map(c => c.name)]);
         setLoading(false);
       } catch (err) {
         toast.error('Failed to load sweets');
         setLoading(false);
       }
     };
-    fetchProducts();
+    fetchData();
   }, []);
-
-  const categories = ['All', ...new Set(products.map(p => p.category))];
 
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = category === 'All' || p.category === category;
-    return matchesSearch && matchesCategory;
+    const matchesMinPrice = minPrice === '' || p.price >= Number(minPrice);
+    const matchesMaxPrice = maxPrice === '' || p.price <= Number(maxPrice);
+    return matchesSearch && matchesCategory && matchesMinPrice && matchesMaxPrice;
+  }).sort((a, b) => {
+    if (sortBy === 'price-low') return a.price - b.price;
+    if (sortBy === 'price-high') return b.price - a.price;
+    if (sortBy === 'rating') return b.rating - a.rating;
+    return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
   return (
-    <div className="container mx-auto px-4 pt-40 pb-20 max-w-7xl">
+    <div className="container mx-auto px-4 pt-44 md:pt-40 pb-20 max-w-7xl">
       <div className="text-center mb-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="inline-block px-4 py-1.5 rounded-full bg-fuchsia-100 text-fuchsia-600 font-black text-xs uppercase tracking-widest mb-4"
         >
-          Our Magical Collection
+          Our Curated Collection
         </motion.div>
         <motion.h1 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-6xl md:text-7xl font-black italic bg-gradient-to-r from-fuchsia-500 to-cyan-500 bg-clip-text text-transparent tracking-tighter"
+          className="text-5xl md:text-6xl lg:text-7xl font-black italic bg-gradient-to-r from-fuchsia-500 to-cyan-500 bg-clip-text text-transparent tracking-tighter"
         >
           Sweet Universe
         </motion.h1>
@@ -57,75 +71,107 @@ const Products = () => {
         </p>
       </div>
 
-      {/* Redesigned Filters & Search */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative mb-24 max-w-5xl mx-auto"
+      {/* Prominent Wide Search Bar */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="max-w-5xl mx-auto mb-8 relative group"
       >
-        {/* Background Glow */}
-        <div className="absolute inset-0 bg-fuchsia-100/50 blur-[80px] rounded-full -z-10"></div>
-        
-        <div className="glass-panel p-2 rounded-[3.5rem] flex flex-col lg:flex-row items-center gap-2 border-white/60 shadow-2xl backdrop-blur-3xl">
-          {/* Search Side */}
-          <div className="relative w-full lg:w-2/5 group">
-            <FiSearch className="absolute left-7 top-1/2 -translate-y-1/2 text-fuchsia-400 group-focus-within:text-fuchsia-500 transition-colors" size={20} />
-            <input 
-              type="text" 
-              placeholder="Search your craving..."
-              className="w-full pl-16 pr-8 py-5 rounded-[3rem] bg-white/40 border-none focus:bg-white/80 focus:ring-0 font-bold text-gray-700 placeholder:text-gray-400 transition-all italic text-lg"
+        <div className="absolute inset-0 bg-fuchsia-100/30 blur-[60px] rounded-full -z-10 group-focus-within:bg-fuchsia-200/50 transition-all"></div>
+        <div className="glass-panel p-1.5 md:p-2 rounded-[2.5rem] md:rounded-[3.5rem] flex flex-col md:flex-row items-center border-white/80 shadow-2xl backdrop-blur-xl gap-2 md:gap-0">
+          <div className="flex-grow relative group w-full">
+            <FiSearch className="absolute left-6 md:left-8 top-1/2 -translate-y-1/2 text-fuchsia-400 group-focus-within:text-fuchsia-600 transition-colors" size={20} />
+            <input
+              type="text"
+              placeholder="What magic are you seeking?"
+              className="w-full pl-14 md:pl-20 pr-8 md:pr-10 py-5 md:py-6 rounded-[2rem] md:rounded-[3rem] bg-transparent border-none focus:ring-0 font-bold text-gray-800 placeholder:text-gray-400 italic text-lg md:text-xl transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
-          {/* Divider (Desktop) */}
-          <div className="hidden lg:block w-[1.5px] h-12 bg-fuchsia-100 mx-2"></div>
-
-          {/* Categories Side */}
-          <div className="flex-grow flex items-center gap-3 overflow-x-auto py-3 px-4 no-scrollbar">
-            {categories.map(cat => {
-              const isActive = category === cat;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
-                  className={`px-7 py-3.5 rounded-[2rem] font-black italic text-sm uppercase tracking-widest whitespace-nowrap transition-all relative group overflow-hidden ${
-                    isActive 
-                    ? 'text-white shadow-lg' 
-                    : 'text-fuchsia-400 hover:text-fuchsia-600'
-                  }`}
-                >
-                  {/* Active Background Animation */}
-                  {isActive && (
-                    <motion.div 
-                      layoutId="activeTab"
-                      className="absolute inset-0 candy-gradient"
-                      transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  <span className="relative z-10">{cat}</span>
-                  
-                  {/* Hover effect for non-active */}
-                  {!isActive && (
-                    <div className="absolute inset-0 bg-fuchsia-50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Decoration */}
-          <div className="hidden xl:flex pr-6 text-fuchsia-200">
-            <FiFilter size={24} />
-          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`w-full md:w-auto px-8 py-4 md:py-5 rounded-[2rem] md:rounded-[3rem] flex items-center justify-center gap-3 font-black italic transition-all md:mr-2 ${showFilters ? 'candy-gradient text-white shadow-lg' : 'bg-fuchsia-50 text-fuchsia-600 hover:bg-fuchsia-100'}`}
+          >
+            <FiFilter size={20} />
+            <span>Filters</span>
+          </button>
         </div>
       </motion.div>
+
+      {/* Advanced Filter Section */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="max-w-5xl mx-auto mb-16 overflow-hidden"
+          >
+            <div className="glass-panel p-6 md:p-10 rounded-[2.5rem] md:rounded-[3rem] border-white/60 bg-white/40 shadow-xl grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+              {/* Categories */}
+              <div>
+                <h4 className="text-xs font-black text-fuchsia-900 uppercase tracking-[0.2em] mb-6 italic">Artisan Collections</h4>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategory(cat)}
+                      className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${category === cat ? 'candy-gradient text-white shadow-md' : 'bg-white/80 text-fuchsia-400 hover:bg-fuchsia-50 hover:text-fuchsia-600'}`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price Range */}
+              <div>
+                <h4 className="text-xs font-black text-fuchsia-900 uppercase tracking-[0.2em] mb-6 italic">Price Range (₹)</h4>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="number" placeholder="Min"
+                    className="w-full bg-white/80 border-none rounded-2xl p-3 text-xs font-bold text-fuchsia-900 focus:ring-2 focus:ring-fuchsia-300"
+                    value={minPrice} onChange={(e) => setMinPrice(e.target.value)}
+                  />
+                  <div className="w-4 h-[2px] bg-fuchsia-100 italic"></div>
+                  <input
+                    type="number" placeholder="Max"
+                    className="w-full bg-white/80 border-none rounded-2xl p-3 text-xs font-bold text-fuchsia-900 focus:ring-2 focus:ring-fuchsia-300"
+                    value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Sorting */}
+              <div>
+                <h4 className="text-xs font-black text-fuchsia-900 uppercase tracking-[0.2em] mb-6 italic">Sort By</h4>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full bg-white/80 border-none rounded-2xl p-3 text-xs font-black text-fuchsia-900 focus:ring-2 focus:ring-fuchsia-300 italic"
+                >
+                  <option value="newest">Newest Reveals</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="rating">Top Rated</option>
+                </select>
+                <button
+                  onClick={() => { setSearchTerm(''); setCategory('All'); setMinPrice(''); setMaxPrice(''); setSortBy('newest'); }}
+                  className="mt-6 text-[10px] font-black text-fuchsia-400 hover:text-fuchsia-600 uppercase tracking-widest flex items-center gap-2 transition-all"
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Product Grid */}
       {loading ? (
         <div className="text-center py-40">
-           <div className="text-4xl font-black italic text-fuchsia-500 animate-pulse">Unwrapping Magic...</div>
+          <div className="text-4xl font-black italic text-fuchsia-500 animate-pulse uppercase tracking-widest">Loading Sweets...</div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
@@ -134,10 +180,12 @@ const Products = () => {
               <ProductCard
                 key={product._id}
                 id={product._id}
+                slug={product.slug}
                 name={product.name}
                 price={product.price.toString()}
                 image={product.image}
                 rating={product.rating}
+                stock={product.stock}
                 delay={idx * 0.05}
               />
             ))}
@@ -151,12 +199,18 @@ const Products = () => {
             <FiShoppingBag size={64} />
           </div>
           <h2 className="text-3xl font-black italic text-gray-800 mb-4">No sweets found!</h2>
-          <p className="text-gray-500 text-lg font-medium mb-8">Even magic has its limits. Try searching for something else!</p>
-          <button 
-            onClick={() => {setSearchTerm(''); setCategory('All');}}
+          <p className="text-gray-500 text-lg font-medium mb-8">We couldn't find any products matching your criteria. Try adjusting your search or category!</p>
+          <button
+            onClick={() => {
+              setSearchTerm('');
+              setCategory('All');
+              setMinPrice('');
+              setMaxPrice('');
+              setSortBy('newest');
+            }}
             className="px-10 py-4 candy-gradient text-white rounded-2xl font-black italic shadow-lg hover:shadow-fuchsia-200 transition-all"
           >
-            Clear Filters
+            Clear All Filters
           </button>
         </div>
       )}

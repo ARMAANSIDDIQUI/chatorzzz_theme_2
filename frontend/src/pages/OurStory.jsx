@@ -31,9 +31,9 @@ const OurStory = () => {
               <div className="w-16 h-16 bg-fuchsia-100 rounded-2xl flex items-center justify-center text-fuchsia-500 mb-6">
                 <FiHeart size={32} />
               </div>
-              <h2 className="text-4xl font-black italic text-fuchsia-900 mb-6">The Beginning</h2>
+              <h2 className="text-4xl font-black italic text-fuchsia-900 mb-6">The Vision</h2>
               <p className="text-fuchsia-800/80 font-medium leading-relaxed">
-                Chatorzzz started with a simple dream in the heart of Moradabad: to bring back the magic of childhood through the most exquisite candies. We believed that every sweet should be an experience, not just a treat.
+                Chatorzzz started with a simple vision in the heart of Moradabad: to capture the wonder of shared moments through the most exquisite candies. We believed that every sweet should be a multisensory experience, not just a treat.
               </p>
             </div>
             <div className="relative">
@@ -61,9 +61,9 @@ const OurStory = () => {
               <div className="w-16 h-16 bg-cyan-100 rounded-2xl flex items-center justify-center text-cyan-500 mb-6">
                 <FiStar size={32} />
               </div>
-              <h2 className="text-4xl font-black italic text-cyan-900 mb-6">The Magic</h2>
+              <h2 className="text-4xl font-black italic text-cyan-900 mb-6">The Craft</h2>
               <p className="text-cyan-800/80 font-medium leading-relaxed">
-                Our secret lies in "Non-AI" craftsmanship. We use authentic, time-tested recipes combined with modern aesthetic flair. Every candy is chosen to bring a spark of joy to your day.
+                Our secret lies in "Non-AI" craftsmanship. We combine authentic, time-tested recipes with modern aesthetic flair. Every candy is selected to offer a moment of pure indulgence.
               </p>
             </div>
           </motion.section>

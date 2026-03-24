@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true
   },
+  phone: {
+    type: String,
+    required: function() { return !this.googleId; }
+  },
   password: {
     type: String,
     required: function() { return !this.googleId; }, // Password not required if Google OAuth

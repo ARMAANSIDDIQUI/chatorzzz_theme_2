@@ -13,7 +13,7 @@ export default function Footer() {
               Chatorzzz
             </Link>
             <p className="text-fuchsia-800 text-lg max-w-md font-medium">
-              Making the world a sweeter place, one magical candy at a time. Welcome to our universe of joy and color.
+              Making the world a sweeter place, one premium candy at a time. Welcome to our curated collection of artisanal sweets.
             </p>
             <div className="flex gap-4 mt-8">
               {[

@@ -14,7 +14,7 @@ export default function FeaturedProducts() {
     const fetchProducts = async () => {
       try {
         const { data } = await axios.get('/api/products');
-        const productList = data?.products || [];
+        const productList = Array.isArray(data) ? data : data?.products || [];
         setProducts(productList.slice(0, 3));
       } catch (err) {
         console.error('Failed to fetch featured products', err);

@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 
 const gallerySchema = new mongoose.Schema({
-  id: { type: Number, required: true, unique: true }, // 1-5 fixed slots
-  image: { type: String, required: true },
+  type: { type: String, enum: ['image', 'video'], default: 'image' },
+  image: { type: String },
+  video: { type: String },
   title: { type: String, required: true },
-  span: { type: String, required: true } // col-span/row-span configuration
+  order: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Gallery', gallerySchema);

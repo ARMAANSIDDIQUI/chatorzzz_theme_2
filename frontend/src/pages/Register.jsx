@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { FiUserPlus, FiMail, FiLock, FiUser, FiStar, FiCheckCircle } from 'react-icons/fi';
+import { FiUserPlus, FiMail, FiLock, FiUser, FiStar, FiCheckCircle, FiPhone } from 'react-icons/fi';
 
 const Register = () => {
   const [step, setStep] = useState(1); // 1: Info, 2: OTP
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', phone: '' });
   const [otp, setOtp] = useState('');
   const { signup, verifyOTP, googleLogin } = useAuth();
   const navigate = useNavigate();
@@ -81,10 +81,22 @@ const Register = () => {
                 </div>
 
                 <div className="relative">
+                  <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400" size={20} />
+                  <input 
+                    type="tel" 
+                    placeholder="Phone Number"
+                    className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/50 border border-white/20 focus:outline-none focus:ring-4 focus:ring-cyan-100 transition-all font-bold italic"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    required
+                  />
+                </div>
+
+                <div className="relative">
                   <FiLock className="absolute left-4 top-1/2 -translate-y-1/2 text-cyan-400" size={20} />
                   <input 
                     type="password" 
-                    placeholder="Sweet Password (min 8 chars)"
+                    placeholder="Password (min 8 chars)"
                     className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/50 border border-white/20 focus:outline-none focus:ring-4 focus:ring-cyan-100 transition-all font-bold italic"
                     value={formData.password}
                     onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -98,7 +110,7 @@ const Register = () => {
                   className="w-full py-5 rounded-[2rem] candy-gradient text-gray-900 font-black text-xl shadow-2xl hover:shadow-cyan-300 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3 active:scale-95"
                 >
                   <FiUserPlus size={24} />
-                  Sign Me Up!
+                  Create Account
                 </button>
               </form>
 
@@ -135,7 +147,7 @@ const Register = () => {
                 </div>
               </div>
               <h2 className="text-2xl font-bold text-gray-800">Verify Email</h2>
-              <p className="text-gray-500 mb-8 px-4">We've sent a magic code to {formData.email}. Enter it below to start your journey!</p>
+              <p className="text-gray-500 mb-8 px-4">We've sent a verification code to {formData.email}. Enter it below to proceed.</p>
               
               <form onSubmit={handleOtpSubmit} className="space-y-6">
                 <input 
