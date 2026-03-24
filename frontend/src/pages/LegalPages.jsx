@@ -41,10 +41,10 @@ const LegalPage = ({ title, icon: Icon, color, content, secondaryColor }) => {
   const theme = colorMap[color] || colorMap.fuchsia;
 
   return (
-    <div className={`min-h-screen pt-32 pb-20 px-6 relative overflow-hidden bg-gradient-to-b ${theme.bg}`}>
+    <div className={`min-h-screen pt-32 pb-20 px-6 relative overflow-hidden bg-linear-to-b ${theme.bg}`}>
       {/* Dynamic Background Glows */}
-      <div className={`absolute top-0 left-1/4 w-[600px] h-[600px] ${theme.glow} rounded-full blur-[120px] pointer-events-none animate-pulse`}></div>
-      <div className={`absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-${secondaryColor || 'cyan'}-400/5 rounded-full blur-[100px] pointer-events-none`} style={{ animationDelay: '2s' }}></div>
+      <div className={`absolute top-0 left-1/4 w-150 h-150 ${theme.glow} rounded-full blur-[120px] pointer-events-none animate-pulse`}></div>
+      <div className={`absolute bottom-0 right-1/4 w-125 h-125 bg-${secondaryColor || 'cyan'}-400/5 rounded-full blur-[100px] pointer-events-none`} style={{ animationDelay: '2s' }}></div>
       
       {/* Floating Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -105,9 +105,9 @@ const LegalPage = ({ title, icon: Icon, color, content, secondaryColor }) => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className="relative pl-8 border-l-[1px] border-gray-100"
+                className="relative pl-8 border-l border-gray-100"
               >
-                <div className={`absolute -left-[5px] top-2 w-2.5 h-2.5 rounded-full ${theme.bullet} shadow-[0_0_10px_rgba(0,0,0,0.1)]`}></div>
+                <div className={`absolute -left-1.25 top-2 w-2.5 h-2.5 rounded-full ${theme.bullet} shadow-[0_0_10px_rgba(0,0,0,0.1)]`}></div>
                 <h2 className={`text-3xl font-black italic ${theme.heading} mb-6 tracking-tight flex items-center gap-4`}>
                   {section.heading}
                 </h2>
