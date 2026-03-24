@@ -3,34 +3,13 @@
   "builds": [
     {
       "src": "backend/index.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "backend/public/**"
+      }
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/index.js"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "backend/public/assets/$1"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "backend/public/favicon.ico"
-    },
-    {
-      "src": "/sw.js",
-      "dest": "backend/public/sw.js"
-    },
-    {
-      "src": "/workbox-(.*).js",
-      "dest": "backend/public/workbox-$1.js"
-    },
-    {
-      "src": "/manifest.webmanifest",
-      "dest": "backend/public/manifest.webmanifest"
-    },
     {
       "src": "/(.*)",
       "dest": "backend/index.js"
