@@ -19,7 +19,7 @@ export default function CandyStory() {
             <img 
               src="/homeart.jpeg" 
               alt="Artisanal Candy Craft" 
-              className="relative z-10 rounded-[3rem] shadow-2xl object-cover h-[500px] w-full border-4 border-white"
+              className="relative z-10 rounded-[3rem] shadow-2xl w-full h-auto border-4 border-white"
             />
             {/* Floating decoration */}
             <motion.div 
