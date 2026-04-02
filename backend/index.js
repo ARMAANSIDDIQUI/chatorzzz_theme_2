@@ -17,14 +17,25 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // Middleware
+const allowedOrigins = [
+  'https://chatorzzz.in',
+  'https://www.chatorzzz.in',
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://localhost:3000',
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`CORS: origin ${origin} is not allowed`));
+  },
   credentials: true
 }));
 
-// Stripe Webhook MUST be before express.json()
-const orderController = require('./controllers/orderController');
-app.post('/api/orders/webhook', express.raw({ type: 'application/json' }), orderController.stripeWebhook);
+// No special raw-body parser needed for Razorpay (HMAC verified in controller)
 
 app.use(express.json());
 

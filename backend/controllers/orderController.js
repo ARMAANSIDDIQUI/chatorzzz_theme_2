@@ -1,5 +1,11 @@
 const Order = require('../models/Order');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 // Create new order
 exports.addOrderItems = async (req, res) => {
@@ -51,7 +57,7 @@ exports.getOrderById = async (req, res) => {
   }
 };
 
-// Update order to paid
+// Update order to paid (manual / fallback)
 exports.updateOrderToPaid = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -63,7 +69,7 @@ exports.updateOrderToPaid = async (req, res) => {
         id: req.body.id,
         status: req.body.status,
         update_time: req.body.update_time,
-        email_address: req.body.payer.email_address
+        email_address: req.body.payer?.email_address
       };
 
       const updatedOrder = await order.save();
@@ -118,74 +124,73 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-// Create Stripe Checkout Session
-exports.createCheckoutSession = async (req, res) => {
+// Create Razorpay Order
+exports.createRazorpayOrder = async (req, res) => {
   try {
-    const { orderItems, orderId } = req.body;
+    const { totalPrice, orderId } = req.body;
 
-    const lineItems = orderItems.map((item) => {
-      return {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.name,
-            images: [item.image],
-          },
-          unit_amount: Math.round(item.price * 100), // Stripe expects cents
-        },
-        quantity: item.qty,
-      };
+    // Razorpay requires amount in smallest currency unit (paise for INR)
+    const amountInPaise = Math.round(totalPrice * 100);
+
+    const options = {
+      amount: amountInPaise,
+      currency: 'INR',
+      receipt: orderId.toString(),
+    };
+
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    res.json({
+      razorpayOrderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
     });
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: lineItems,
-      mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order-success/${orderId}`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/checkout`,
-      metadata: { orderId: orderId.toString() },
-    });
-
-    res.json({ id: session.id, url: session.url });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Stripe Webhook Handler
-exports.stripeWebhook = async (req, res) => {
-  const payload = req.body;
-  const sig = req.headers['stripe-signature'];
-
-  let event;
+// Verify Razorpay Payment & mark order as paid
+exports.verifyPayment = async (req, res) => {
   try {
-    event = stripe.webhooks.constructEvent(payload, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error(`Webhook Error: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      orderId
+    } = req.body;
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const orderId = session.metadata.orderId;
+    // Validate signature using HMAC SHA256
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex');
 
-    try {
-      const order = await Order.findById(orderId);
-      if (order) {
-        order.isPaid = true;
-        order.paidAt = Date.now();
-        order.paymentResult = {
-          id: session.payment_intent,
-          status: session.payment_status,
-          email_address: session.customer_details?.email,
-        };
-        await order.save();
-        console.log(`Order ${orderId} marked as paid`);
-      }
-    } catch (err) {
-      console.error(`Error updating order ${orderId}:`, err);
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ message: 'Payment verification failed: invalid signature' });
     }
-  }
 
-  res.status(200).end();
+    // Mark order as paid in DB
+    const order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    order.isPaid = true;
+    order.paidAt = Date.now();
+    order.paymentResult = {
+      id: razorpay_payment_id,
+      status: 'captured',
+      razorpay_order_id,
+      razorpay_signature,
+    };
+    await order.save();
+
+    console.log(`✅ Order ${orderId} marked as paid via Razorpay`);
+    res.json({ success: true, orderId });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 };

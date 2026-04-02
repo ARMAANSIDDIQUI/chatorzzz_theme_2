@@ -7,11 +7,23 @@ import { FiMapPin, FiTruck, FiCreditCard, FiZap, FiCheckCircle } from 'react-ico
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
+// Dynamically load Razorpay checkout script
+const loadRazorpayScript = () =>
+  new Promise((resolve) => {
+    if (document.getElementById('razorpay-script')) return resolve(true);
+    const script = document.createElement('script');
+    script.id = 'razorpay-script';
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 const Checkout = () => {
   const { cartItems, totalPrice, itemsPrice, shippingPrice, taxPrice, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   const [shippingAddress, setShippingAddress] = useState({
     address: '',
     city: '',
@@ -26,29 +38,81 @@ const Checkout = () => {
     setIsProcessing(true);
 
     try {
-      const orderData = {
+      // Step 1 — Create order in our DB
+      const { data: orderData } = await axios.post('/api/orders', {
         orderItems: cartItems,
         shippingAddress,
         itemsPrice,
         shippingPrice,
         taxPrice,
         totalPrice,
-        paymentMethod: 'Stripe'
-      };
-
-      const { data } = await axios.post('/api/orders', orderData);
-
-      const { data: sessionData } = await axios.post('/api/orders/create-checkout-session', {
-        orderItems: cartItems,
-        orderId: data._id
+        paymentMethod: 'Razorpay'
       });
 
-      toast.success('Redirecting to secure payment...');
-      clearCart();
-      window.location.href = sessionData.url;
+      // Step 2 — Create Razorpay order on backend
+      const { data: rzpData } = await axios.post('/api/orders/create-razorpay-order', {
+        totalPrice,
+        orderId: orderData._id
+      });
+
+      // Step 3 — Load Razorpay SDK and open checkout popup
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error('Failed to load Razorpay. Check your internet connection.');
+        setIsProcessing(false);
+        return;
+      }
+
+      const options = {
+        key: rzpData.keyId,
+        amount: rzpData.amount,
+        currency: rzpData.currency,
+        name: 'Chatorzzz',
+        description: 'Delicious Sweet Order',
+        order_id: rzpData.razorpayOrderId,
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#d946ef', // fuchsia-500
+        },
+        handler: async (response) => {
+          try {
+            // Step 4 — Verify payment on backend
+            await axios.post('/api/orders/verify-payment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderId: orderData._id
+            });
+
+            toast.success('Payment successful! 🎉');
+            clearCart();
+            navigate(`/order-success/${orderData._id}`);
+          } catch (err) {
+            toast.error(err.response?.data?.message || 'Payment verification failed');
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            toast('Payment cancelled. Your cart is still saved.', { icon: 'ℹ️' });
+            setIsProcessing(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
+      // Keep button disabled until modal closes naturally
+      rzp.on('payment.failed', (response) => {
+        toast.error(`Payment failed: ${response.error.description}`);
+        setIsProcessing(false);
+      });
+
     } catch (err) {
       toast.error(err.response?.data?.message || 'Order failed');
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -64,7 +128,7 @@ const Checkout = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* Shipping Form */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="glass-panel p-8 rounded-[2.5rem]"
@@ -79,7 +143,7 @@ const Checkout = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
               <FiMapPin className="absolute left-4 top-4 text-fuchsia-400" size={20} />
-              <textarea 
+              <textarea
                 placeholder="Full Shipping Address"
                 className="w-full pl-12 pr-4 py-4 rounded-3xl bg-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-300 font-medium min-h-[120px]"
                 value={shippingAddress.address}
@@ -89,16 +153,16 @@ const Checkout = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="City"
                 className="w-full px-6 py-4 rounded-3xl bg-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-300 font-medium"
                 value={shippingAddress.city}
                 onChange={(e) => setShippingAddress({...shippingAddress, city: e.target.value})}
                 required
               />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Postal Code"
                 className="w-full px-6 py-4 rounded-3xl bg-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-300 font-medium"
                 value={shippingAddress.postalCode}
@@ -107,8 +171,8 @@ const Checkout = () => {
               />
             </div>
 
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Country"
               className="w-full px-6 py-4 rounded-3xl bg-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-fuchsia-300 font-medium"
               value={shippingAddress.country}
@@ -118,22 +182,22 @@ const Checkout = () => {
 
             <div className="flex items-center gap-3 p-6 bg-cyan-50 rounded-3xl text-cyan-700 border border-cyan-100">
               <FiCreditCard size={24} />
-              <span className="font-bold">Payment Method: Sweet Card (Stripe)</span>
+              <span className="font-bold">Payment via Razorpay (UPI, Cards, Netbanking & more)</span>
             </div>
 
-            <button 
+            <button
               type="submit"
               disabled={isProcessing}
               className={`w-full py-5 rounded-[2rem] candy-gradient text-white font-black text-xl shadow-2xl hover:shadow-fuchsia-200 transform hover:-translate-y-1 transition-all flex items-center justify-center gap-3 ${isProcessing ? 'opacity-70' : ''}`}
             >
-              {isProcessing ? 'Processing Magic...' : `Pay ₹${totalPrice.toFixed(2)}`}
+              {isProcessing ? 'Opening Payment...' : `Pay ₹${totalPrice.toFixed(2)}`}
               <FiZap size={24} />
             </button>
           </form>
         </motion.div>
 
         {/* Order Summary Sidebar */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-8"
@@ -152,9 +216,9 @@ const Checkout = () => {
                 </div>
               ))}
             </div>
-            
+
             <div className="mt-8 space-y-3 pt-6 border-t-2 border-dashed border-gray-200">
-               <div className="flex justify-between font-bold text-gray-500">
+              <div className="flex justify-between font-bold text-gray-500">
                 <span>Subtotal</span>
                 <span>₹{itemsPrice.toFixed(2)}</span>
               </div>
@@ -171,7 +235,8 @@ const Checkout = () => {
               <h3 className="font-black text-gray-800 uppercase tracking-widest text-sm">Security Assured</h3>
             </div>
             <p className="text-gray-500 text-sm font-medium">
-              Every sweet order is encrypted and protected. Your satisfaction is our sweetest priority.
+              Every sweet order is encrypted and protected via Razorpay's secure payment gateway.
+              Supports UPI, Cards, Netbanking, and Wallets.
             </p>
           </div>
         </motion.div>
