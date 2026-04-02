@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiInstagram, FiTwitter, FiFacebook, FiHeart, FiGift, FiStar } from 'react-icons/fi';
-import logoImg from '../logo.jpeg';
+const logoImg = '/logo-removebg.png';
 
 export default function Footer() {
   return (
@@ -11,7 +11,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-6 inline-flex">
-              <img src={logoImg} alt="Chatorzzz Logo" className="h-12 w-auto object-contain rounded-xl shadow-sm" />
+              <img src={logoImg} alt="Chatorzzz Logo" className="h-12 w-auto object-contain bg-transparent mix-blend-multiply dark:mix-blend-screen rounded-xl" />
               <span className="text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md">
                 Chatorzzz
               </span>

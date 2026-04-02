@@ -13,18 +13,18 @@ export default function Hero() {
       <div className="container mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
         {/* Left Side: Text */}
         <div className="flex flex-col gap-6 text-center lg:text-left order-2 lg:order-1">
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-5xl md:text-7xl font-black tracking-tighter text-fuchsia-900 drop-shadow-lg leading-tight"
           >
-            Sweets That <br/>
+            Candies That <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-cyan-400">
               Actually Hit Different
             </span>
           </motion.h1>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -32,7 +32,7 @@ export default function Hero() {
           >
             Small batches. Big flavor. No shortcuts. Just pure, hand-crafted magic for your sweet tooth.
           </motion.p>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
