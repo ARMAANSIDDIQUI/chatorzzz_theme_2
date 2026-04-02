@@ -40,7 +40,7 @@ export default function CTA() {
           transition={{ delay: 0.2 }}
           className="text-2xl text-fuchsia-800 mb-12 font-bold leading-relaxed"
         >
-          Trust us, your future self will thank you for this choice. Grab your first box with <span className="text-white px-2 py-1 bg-fuchsia-600 rounded-lg">20% off</span> and see why we're so obsessed.
+          Trust us, your future self will thank you for this choice. Grab your first box and see why we're so obsessed.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

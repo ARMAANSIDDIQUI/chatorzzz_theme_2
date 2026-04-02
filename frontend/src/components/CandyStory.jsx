@@ -17,7 +17,7 @@ export default function CandyStory() {
           >
             <div className="absolute inset-0 bg-fuchsia-300 rounded-[3rem] transform rotate-6 scale-105 opacity-50 blur-xl"></div>
             <img 
-              src="/assets/images/premium_candy_process.png" 
+              src="/homeart.jpeg" 
               alt="Artisanal Candy Craft" 
               className="relative z-10 rounded-[3rem] shadow-2xl object-cover h-[500px] w-full border-4 border-white"
             />

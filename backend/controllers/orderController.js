@@ -2,10 +2,17 @@ const Order = require('../models/Order');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Lazy init — avoids crash at startup if env vars aren't set yet
+let _razorpay = null;
+const getRazorpay = () => {
+  if (!_razorpay) {
+    _razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  return _razorpay;
+};
 
 // Create new order
 exports.addOrderItems = async (req, res) => {
@@ -138,7 +145,7 @@ exports.createRazorpayOrder = async (req, res) => {
       receipt: orderId.toString(),
     };
 
-    const razorpayOrder = await razorpay.orders.create(options);
+    const razorpayOrder = await getRazorpay().orders.create(options);
 
     res.json({
       razorpayOrderId: razorpayOrder.id,
