@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
-import { 
-  FiArrowLeft, FiStar, FiShoppingBag, FiPlus, FiMinus, 
-  FiTruck, FiShield, FiRotateCcw 
+import {
+  FiArrowLeft, FiStar, FiShoppingBag, FiPlus, FiMinus,
+  FiTruck, FiShield, FiRotateCcw, FiPackage
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -34,29 +34,29 @@ const Product = () => {
         setLoading(false);
       }
     };
+    fetchProduct();
+  }, [slug]);
 
+  useEffect(() => {
+    if (!user || !product) return;
     const checkReviewStatus = async () => {
-      if (!user) return;
       try {
-        // We'll use a special check endpoint or just filter orders on frontend
-        // For security, backend check is better. Let's assume we have an endpoint or just check results.
         const { data: orders } = await axios.get('/api/orders/myorders');
-        const hasBought = orders.some(order => 
-          order.status === 'Delivered' && 
-          order.orderItems.some(item => item.product === product?._id)
+        const hasBought = orders.some(
+          order =>
+            order.status === 'Delivered' &&
+            order.orderItems.some(item => item.product === product._id)
         );
-        const alreadyReviewed = product?.reviews?.some(r => r.user === user._id);
+        const alreadyReviewed = product.reviews?.some(r => r.user === user._id);
         setCanReview(hasBought && !alreadyReviewed);
       } catch (err) {
         console.error('Error checking review status', err);
       }
     };
+    checkReviewStatus();
+  }, [user, product?._id]);
 
-    fetchProduct();
-    if (user && product) checkReviewStatus();
-  }, [slug, user, product?.reviews]);
-
-  const handleReviewSubmit = async (e) => {
+  const handleReviewSubmit = async e => {
     e.preventDefault();
     if (rating < 1) return toast.error('Please select a rating');
     setSubmitting(true);
@@ -73,235 +73,313 @@ const Product = () => {
     }
   };
 
-  if (loading) return <div className="text-center py-40 text-fuchsia-500 font-black animate-pulse text-3xl italic">Fetching Your Sweet...</div>;
-  if (!product) return <div className="text-center py-40 text-gray-500 font-bold">Product not found. <Link to="/products" className="text-fuchsia-500 underline">Back to Shop</Link></div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="text-center"
+        >
+          <div className="text-5xl mb-4">🍬</div>
+          <p className="text-fuchsia-600 font-black italic text-xl">Fetching Your Sweet...</p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center glass-panel p-12 rounded-3xl">
+          <div className="text-5xl mb-4">😢</div>
+          <p className="text-gray-600 font-bold mb-4">Product not found.</p>
+          <Link to="/products" className="candy-gradient px-6 py-3 rounded-full font-black italic text-gray-800">
+            Back to Shop
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const approvedReviews = product.reviews?.filter(r => r.isApproved) || [];
 
   return (
-    <div className="relative min-h-screen bg-white selection:bg-fuchsia-100">
-      {/* Background Floating Text */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center opacity-[0.03]">
-        <h1 className="text-[25vw] font-black italic uppercase tracking-tighter leading-none whitespace-nowrap -rotate-12 translate-x-[-10%] translate-y-[20%] text-gray-900">
-          {product.name}
-        </h1>
-      </div>
+    <div className="min-h-screen py-8 pt-24 sm:pt-28 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto">
 
-      <div className="container mx-auto px-6 py-12 max-w-7xl relative z-10">
-        <header className="flex justify-between items-center mb-16">
-          <Link to="/products" className="group flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-gray-400 hover:text-fuchsia-500 transition-all">
-            <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:border-fuchsia-200 transition-all">
-              <FiArrowLeft size={16} />
+        {/* Back nav + category badge */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center justify-between gap-3 mb-8 sm:mb-12"
+        >
+          <Link
+            to="/products"
+            className="group flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-gray-500 hover:text-fuchsia-600 transition-all"
+          >
+            <div className="w-9 h-9 rounded-full glass-panel flex items-center justify-center group-hover:scale-110 transition-all">
+              <FiArrowLeft size={15} />
             </div>
-            Back to Library
+            Back to Shop
           </Link>
-          <div className="px-6 py-2 bg-gray-50 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-400 border border-gray-100">
-            {product.category} — ID: {product._id?.slice(-6)}
+          <div className="glass-panel px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-fuchsia-600">
+            {product.category}
           </div>
-        </header>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
-          {/* Left Side: Information Content */}
-          <div className="lg:col-span-5 order-2 lg:order-1 space-y-12">
-            <div>
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 mb-6"
-              >
-                <div className="flex text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <FiStar key={i} size={14} fill={i < Math.floor(product.rating) ? "currentColor" : "none"} />
-                  ))}
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">{product.rating} / 5.0</span>
-              </motion.div>
-              
-              <motion.h1 
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-7xl md:text-8xl font-black italic text-gray-900 leading-[0.9] tracking-tighter mb-8"
-              >
-                {product.name.split(' ').map((word, i) => (
-                  <span key={i} className="block last:text-fuchsia-500">{word}</span>
-                ))}
-              </motion.h1>
-              
-              <motion.p 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="text-gray-500 text-lg font-medium leading-relaxed max-w-md italic border-l-4 border-fuchsia-100 pl-6"
-              >
-                "{product.description}"
-              </motion.p>
+        {/* Main grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+
+          {/* ── Image Panel ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', damping: 18 }}
+            className="relative"
+          >
+            <div className="relative aspect-square w-full rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden glass-panel p-4 sm:p-6 shadow-2xl shadow-fuchsia-200/40">
+              {/* Candy blobs behind image */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-0 left-0 w-2/3 h-2/3 bg-fuchsia-200/20 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-cyan-200/20 rounded-full blur-3xl" />
+              </div>
+              <img
+                src={product.image}
+                alt={product.name}
+                className="relative z-10 w-full h-full object-cover rounded-[1.8rem] sm:rounded-[2.5rem] shadow-xl"
+              />
             </div>
 
-            <div className="space-y-4">
-              <div className="text-6xl font-black text-gray-900 flex items-baseline gap-2 italic">
-                <span className="text-2xl text-fuchsia-300">₹</span>
-                {product.price}
+            {/* Floating verdict badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="absolute -bottom-4 left-6 glass-panel px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 border border-white/60"
+            >
+              <div className="w-9 h-9 candy-gradient rounded-xl flex items-center justify-center text-white">
+                <FiStar fill="currentColor" size={14} />
+              </div>
+              <div>
+                <div className="text-[9px] font-black uppercase tracking-widest text-gray-400">Community</div>
+                <div className="text-sm font-black italic text-gray-800">
+                  {product.rating >= 4.5 ? 'Loved It 🍬' : product.rating >= 3 ? 'Pretty Good' : 'Mixed Views'}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+
+          {/* ── Info Panel ── */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            className="space-y-6 mt-6 lg:mt-0"
+          >
+            {/* Stars + rating */}
+            <div className="flex items-center gap-3">
+              <div className="flex text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <FiStar key={i} size={16} fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'} />
+                ))}
+              </div>
+              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">
+                {product.rating} / 5.0 · {product.numReviews} reviews
+              </span>
+            </div>
+
+            {/* Product name */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black italic text-gray-900 leading-tight tracking-tight">
+              {product.name}
+            </h1>
+
+            {/* Description */}
+            <p className="text-gray-500 text-base sm:text-lg font-medium leading-relaxed italic border-l-4 border-fuchsia-300 pl-5">
+              "{product.description}"
+            </p>
+
+            {/* Price + stock */}
+            <div className="glass-panel p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl text-fuchsia-400 font-black">₹</span>
+                <span className="text-5xl font-black italic text-gray-900">{product.price}</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-emerald-400' : 'bg-red-400'} animate-pulse`}></div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  {product.stock > 0 ? `${product.stock} Units In Vault` : 'Vault Empty'}
+                <div className={`w-2.5 h-2.5 rounded-full ${product.stock > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+                <span className="text-xs font-black uppercase tracking-widest text-gray-500">
+                  {product.stock > 0 ? `${product.stock} In Stock` : 'Out of Stock'}
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch gap-4 pt-8">
-              <div className="flex items-center justify-between bg-gray-50 rounded-2xl p-2 min-w-[140px] border border-gray-100">
-                <button 
+            {/* Qty + Add to cart */}
+            <div className="flex flex-col sm:flex-row items-stretch gap-4">
+              <div className="flex items-center justify-between glass-panel rounded-2xl p-1.5 min-w-[140px]">
+                <button
                   onClick={() => qty > 1 && setQty(qty - 1)}
-                  className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white transition-all text-gray-400 hover:text-gray-900"
+                  className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/60 transition-all text-gray-500 hover:text-fuchsia-600"
                 >
                   <FiMinus />
                 </button>
-                <span className="text-xl font-black italic">{qty}</span>
-                <button 
+                <span className="text-xl font-black italic text-gray-800">{qty}</span>
+                <button
                   onClick={() => qty < product.stock && setQty(qty + 1)}
-                  className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white transition-all text-gray-400 hover:text-gray-900"
+                  className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/60 transition-all text-gray-500 hover:text-fuchsia-600"
                 >
                   <FiPlus />
                 </button>
               </div>
 
-              <button 
+              <button
                 onClick={() => addToCart(product, qty)}
-                className="flex-grow flex items-center justify-center gap-4 py-5 px-10 rounded-2xl bg-gray-900 text-white font-black italic uppercase tracking-widest hover:bg-fuchsia-600 transition-all group active:scale-95 shadow-2xl shadow-gray-200"
+                disabled={product.stock === 0}
+                className="flex-grow flex items-center justify-center gap-3 py-4 px-8 rounded-2xl candy-gradient text-gray-900 font-black italic uppercase tracking-widest hover:shadow-xl hover:shadow-fuchsia-200/50 hover:-translate-y-0.5 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
-                <FiShoppingBag size={20} className="group-hover:rotate-12 transition-transform" />
-                Capture Sweet
+                <FiShoppingBag size={20} />
+                {product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-8 pt-12 border-t border-gray-100">
+            {/* Trust badges */}
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/40">
               {[
-                { icon: FiTruck, label: 'Swift' },
-                { icon: FiShield, label: 'Pure' },
-                { icon: FiRotateCcw, label: 'Legal' }
+                { icon: FiTruck, label: 'Fast Delivery' },
+                { icon: FiShield, label: 'Quality Assured' },
+                { icon: FiRotateCcw, label: 'Easy Returns' },
               ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center lg:items-start gap-2">
-                   <item.icon className="text-gray-300" size={18} />
-                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">{item.label}</span>
+                <div key={i} className="flex flex-col items-center gap-2 text-center">
+                  <div className="w-10 h-10 glass-panel rounded-xl flex items-center justify-center">
+                    <item.icon className="text-fuchsia-400" size={16} />
+                  </div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">
+                    {item.label}
+                  </span>
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Right Side: Visual Center (Asymmetrical Image) */}
-          <div className="lg:col-span-7 order-1 lg:order-2">
-            <motion.div 
-              initial={{ opacity: 0, rotate: 5, y: 50 }}
-              animate={{ opacity: 1, rotate: 0, y: 0 }}
-              transition={{ type: "spring", damping: 15 }}
-              className="relative aspect-[4/5] lg:aspect-square w-full"
-            >
-              {/* Decorative elements */}
-              <div className="absolute -top-10 -right-10 w-40 h-40 border-[1.5px] border-fuchsia-100 rounded-full pointer-events-none"></div>
-              <div className="absolute bottom-10 left-[-20px] px-6 py-4 bg-white shadow-2xl rounded-2xl z-20 border border-gray-50 flex items-center gap-4 max-w-xs group cursor-default">
-                 <div className="w-12 h-12 bg-fuchsia-50 rounded-xl flex items-center justify-center text-fuchsia-400">
-                    <FiStar fill="currentColor" />
-                 </div>
-                 <div>
-                    <div className="text-[10px] font-black uppercase text-gray-300 mb-0.5">Community Veridict</div>
-                    <div className="text-sm font-black italic text-gray-800">Magically Recommended</div>
-                 </div>
-              </div>
-
-              <div className="w-full h-full bg-gray-50 rounded-[4rem] lg:rounded-[6rem] overflow-hidden p-6 relative group">
-                <motion.div 
-                  className="absolute inset-0 bg-fuchsia-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  whileHover={{ scale: 1.05 }}
-                />
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-cover rounded-[3rem] lg:rounded-[5rem] shadow-2xl relative z-10 transition-transform duration-700 hover:scale-105"
-                />
-              </div>
-            </motion.div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Dynamic Reviews Section */}
-        <section className="mt-40 max-w-5xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-black italic text-gray-900 tracking-tighter mb-4">Unwrapped Thoughts</h2>
-            <div className="flex items-center justify-center gap-4 text-gray-400">
-               <span className="h-[1px] w-12 bg-gray-100"></span>
-               <span className="text-[10px] font-black uppercase tracking-[0.4em]">{product.numReviews} Verified Sessions</span>
-               <span className="h-[1px] w-12 bg-gray-100"></span>
+        {/* ── Reviews Section ── */}
+        <section className="mt-20 sm:mt-28">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black italic text-gray-900 tracking-tight mb-3">
+              Sweet Thoughts 💬
+            </h2>
+            <div className="flex items-center justify-center gap-3 text-gray-400">
+              <span className="h-px w-10 bg-fuchsia-200" />
+              <span className="text-[10px] font-black uppercase tracking-[0.35em]">
+                {product.numReviews} verified reviews
+              </span>
+              <span className="h-px w-10 bg-fuchsia-200" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            {/* Form Side */}
-            <div className="space-y-8">
+            {/* Form or locked state */}
+            <div>
               {canReview ? (
-                <div className="bg-gray-50 p-10 rounded-[3rem] border border-gray-100">
-                  <h3 className="text-2xl font-black italic text-gray-900 mb-8">Add Your Layer</h3>
-                  <form onSubmit={handleReviewSubmit} className="space-y-8">
-                    <div className="flex gap-4">
-                      {[1,2,3,4,5].map(i => (
-                        <button key={i} type="button" onClick={() => setRating(i)} className={`text-3xl ${rating >= i ? 'text-amber-400' : 'text-gray-200'}`}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="glass-panel p-6 sm:p-8 rounded-3xl"
+                >
+                  <h3 className="text-xl font-black italic text-gray-900 mb-6">Share Your Experience</h3>
+                  <form onSubmit={handleReviewSubmit} className="space-y-5">
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map(i => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setRating(i)}
+                          className={`text-3xl transition-transform hover:scale-110 ${rating >= i ? 'text-amber-400' : 'text-gray-200'}`}
+                        >
                           ★
                         </button>
                       ))}
                     </div>
-                    <textarea 
+                    <textarea
                       rows="4"
                       value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      placeholder="The sensation was..."
-                      className="w-full bg-white rounded-2xl p-6 border-none focus:ring-2 focus:ring-fuchsia-200 font-medium italic text-gray-600"
+                      onChange={e => setComment(e.target.value)}
+                      placeholder="What did you think of this sweet?"
+                      className="w-full bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/80 focus:outline-none focus:ring-2 focus:ring-fuchsia-300 font-medium italic text-gray-600 resize-none"
                     />
-                    <button type="submit" className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black italic uppercase text-sm tracking-widest hover:bg-fuchsia-500 transition-all">
-                      Finalize Thought
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full py-4 candy-gradient rounded-2xl font-black italic uppercase text-sm tracking-widest text-gray-800 hover:shadow-lg transition-all disabled:opacity-60"
+                    >
+                      {submitting ? 'Submitting...' : 'Submit Review'}
                     </button>
                   </form>
-                </div>
+                </motion.div>
               ) : (
-                <div className="bg-white border-2 border-dashed border-gray-100 p-10 rounded-[3rem] text-center flex flex-col items-center justify-center py-20">
-                   <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 mb-6">
-                      <FiShield size={32} />
-                   </div>
-                   <h4 className="font-black italic text-gray-800 text-xl mb-2">Member Vault Only</h4>
-                   <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-xs">
-                     Reviews are exclusively reserved for those who have experienced the magic.
-                   </p>
+                <div className="glass-panel p-8 rounded-3xl text-center flex flex-col items-center justify-center gap-4 border-2 border-dashed border-fuchsia-200/60 min-h-[200px]">
+                  <div className="w-14 h-14 candy-gradient rounded-full flex items-center justify-center text-white">
+                    <FiShield size={26} />
+                  </div>
+                  <div>
+                    <h4 className="font-black italic text-gray-800 text-lg mb-1">Members Only</h4>
+                    <p className="text-gray-400 text-sm font-medium leading-relaxed max-w-xs">
+                      {user
+                        ? 'Only verified buyers who received their order can leave a review.'
+                        : 'Login and purchase this product to leave a review.'}
+                    </p>
+                  </div>
+                  {!user && (
+                    <Link
+                      to="/login"
+                      className="px-6 py-2.5 candy-gradient rounded-full font-black italic text-sm text-gray-800 hover:shadow-md transition-all"
+                    >
+                      Login
+                    </Link>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* List Side */}
-            <div className="space-y-6">
-              {!product.reviews || product.reviews.filter(r => r.isApproved).length === 0 ? (
-                <div className="bg-white p-12 text-center text-gray-300 font-black italic uppercase tracking-tighter text-2xl">
-                  Vacuum Detected...
+            {/* Review list */}
+            <div className="space-y-4">
+              {approvedReviews.length === 0 ? (
+                <div className="glass-panel p-10 rounded-3xl text-center">
+                  <div className="text-4xl mb-3">🍭</div>
+                  <p className="text-gray-400 font-black italic uppercase tracking-widest text-sm">
+                    No reviews yet. Be the first!
+                  </p>
                 </div>
               ) : (
-                product.reviews.filter(r => r.isApproved).map((review, i) => (
-                  <motion.div 
-                    key={i} 
-                    initial={{ opacity: 0, y: 20 }}
+                approvedReviews.map((review, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    className="p-8 rounded-[2.5rem] bg-white border border-gray-50 shadow-sm relative overflow-hidden group hover:border-fuchsia-100 transition-colors"
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.06 }}
+                    className="glass-panel p-5 sm:p-6 rounded-2xl hover:shadow-md transition-all"
                   >
-                    <div className="flex justify-between items-start mb-4 relative z-10">
-                       <div>
-                          <div className="text-lg font-black italic text-gray-900 flex items-center gap-2">
-                            {review.name}
-                            {review.isAdminReview && <span className="bg-fuchsia-50 text-fuchsia-500 uppercase text-[8px] font-black px-2 py-0.5 rounded tracking-widest">Admin</span>}
-                          </div>
-                          <div className="flex text-amber-300 mt-1">
-                            {[...Array(review.rating)].map((_, i) => <FiStar size={10} key={i} fill="currentColor" />)}
-                          </div>
-                       </div>
-                       <span className="text-[10px] font-black text-gray-300 uppercase italic">
-                         {new Date(review.createdAt).toLocaleDateString()}
-                       </span>
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <div className="font-black italic text-gray-800 flex items-center gap-2">
+                          {review.name}
+                          {review.isAdminReview && (
+                            <span className="bg-fuchsia-100 text-fuchsia-600 text-[8px] font-black uppercase px-2 py-0.5 rounded-full tracking-widest">
+                              Staff
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex text-amber-400 mt-1">
+                          {[...Array(review.rating)].map((_, j) => (
+                            <FiStar key={j} size={11} fill="currentColor" />
+                          ))}
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-gray-300 font-black uppercase italic">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
-                    <p className="text-gray-500 font-medium italic relative z-10 leading-relaxed group-hover:text-gray-700 transition-colors">
+                    <p className="text-gray-500 font-medium italic leading-relaxed text-sm">
                       "{review.comment}"
                     </p>
                   </motion.div>
