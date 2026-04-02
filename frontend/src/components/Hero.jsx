@@ -1,10 +1,38 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, Component } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
-import { Environment, PerspectiveCamera, ContactShadows } from '@react-three/drei';
+import { Environment, PerspectiveCamera } from '@react-three/drei';
 import Candy3D from './Candy3D';
-import FloatingCandies from './FloatingCandies';
+
+// Error boundary to catch WebGL / R3F crashes gracefully
+class CanvasErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error) {
+    console.warn('[Hero] 3D Canvas failed to render:', error?.message);
+  }
+  render() {
+    if (this.state.hasError) {
+      // Fallback: show the homeart image instead
+      return (
+        <div className="h-full w-full flex items-center justify-center">
+          <img
+            src="/homeart.jpeg"
+            alt="Artisanal Candy"
+            className="h-full w-full object-cover rounded-[3rem] shadow-2xl border-4 border-white"
+          />
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function Hero() {
   return (
@@ -44,18 +72,20 @@ export default function Hero() {
           </motion.div>
         </div>
 
-        {/* Right Side: 3D Candy */}
+        {/* Right Side: 3D Candy with error boundary */}
         <div className="h-[400px] lg:h-[600px] w-full relative order-1 lg:order-2">
-          <Canvas>
-            <Suspense fallback={null}>
-              <PerspectiveCamera makeDefault position={[0, 0, 7]} fov={50} />
-              <ambientLight intensity={0.8} />
-              <directionalLight position={[5, 5, 5]} intensity={1.5} color="#ffffff" />
-              <pointLight position={[-10, -10, -10]} intensity={1} color="#BFE9FF" />
-              <Environment preset="city" />
-              <Candy3D />
-            </Suspense>
-          </Canvas>
+          <CanvasErrorBoundary>
+            <Canvas>
+              <Suspense fallback={null}>
+                <PerspectiveCamera makeDefault position={[0, 0, 7]} fov={50} />
+                <ambientLight intensity={0.8} />
+                <directionalLight position={[5, 5, 5]} intensity={1.5} color="#ffffff" />
+                <pointLight position={[-10, -10, -10]} intensity={1} color="#BFE9FF" />
+                <Environment preset="city" />
+                <Candy3D />
+              </Suspense>
+            </Canvas>
+          </CanvasErrorBoundary>
         </div>
       </div>
     </section>
