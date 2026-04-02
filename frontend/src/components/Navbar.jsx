@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { FiShoppingCart, FiUser, FiHome, FiShoppingBag, FiSettings, FiMenu, FiX } from 'react-icons/fi';
+import logoImg from '../logo.jpeg';
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -43,8 +44,9 @@ export default function Navbar() {
         >
           {isMobileMenuOpen ? <FiX size={26} /> : <FiMenu size={26} />}
         </button>
-        <Link to="/" className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md pr-2 transition-all">
-          Chatorzzz
+        <Link to="/" className="flex items-center gap-2 pr-2 transition-all">
+          <img src={logoImg} alt="Chatorzzz Logo" className="h-10 sm:h-12 w-auto object-contain rounded-xl shadow-sm" />
+          <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md hidden sm:block">Chatorzzz</span>
         </Link>
       </div>
 

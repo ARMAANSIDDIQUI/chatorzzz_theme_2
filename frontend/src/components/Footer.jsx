@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiInstagram, FiTwitter, FiFacebook, FiHeart, FiGift, FiStar } from 'react-icons/fi';
+import logoImg from '../logo.jpeg';
 
 export default function Footer() {
   return (
@@ -9,8 +10,11 @@ export default function Footer() {
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md mb-6 inline-block">
-              Chatorzzz
+            <Link to="/" className="flex items-center gap-3 mb-6 inline-flex">
+              <img src={logoImg} alt="Chatorzzz Logo" className="h-12 w-auto object-contain rounded-xl shadow-sm" />
+              <span className="text-4xl font-black italic tracking-tighter bg-gradient-to-r from-fuchsia-600 to-cyan-600 bg-clip-text text-transparent drop-shadow-md">
+                Chatorzzz
+              </span>
             </Link>
             <p className="text-fuchsia-800 text-lg max-w-md font-medium">
               Making the world a sweeter place, one premium candy at a time. Welcome to our curated collection of artisanal sweets.
