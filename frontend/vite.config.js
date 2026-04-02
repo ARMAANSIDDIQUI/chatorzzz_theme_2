@@ -11,22 +11,29 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['logo-removebg.png'],
+      includeAssets: ['logo-removebg.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Chatorzzz E-commerce',
         short_name: 'Chatorzzz',
         description: 'The ultimate candy universe experience.',
         theme_color: '#d946ef',
+        background_color: '#FFB6E6',
         icons: [
           {
-            src: 'logo-removebg.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'logo-removebg.png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }

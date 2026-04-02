@@ -59,7 +59,7 @@ const Products = () => {
         >
           Our Curated Collection
         </motion.div>
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-5xl md:text-6xl lg:text-7xl font-black italic bg-gradient-to-r from-fuchsia-500 to-cyan-500 bg-clip-text text-transparent tracking-tighter"
